@@ -26,5 +26,5 @@ def measure_latency_jitter(host, count=50):
         print("No valid latency measurements obtained.")
 
 if __name__ == "__main__":
-    host = "google.com"  # Replace with the desired host
+    host = "8.8.8.8"  # Replace with the desired host
     measure_latency_jitter(host)
