@@ -56,7 +56,7 @@ def measure_latency_scapy(host, count=5):
             received_count += 1
 
     if received_count > 0:
-        return total_latency / received_count
+        return round(total_latency / received_count, 2)
     else:
         return None
 
