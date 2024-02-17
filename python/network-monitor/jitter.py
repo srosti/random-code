@@ -82,9 +82,29 @@ def measure_latency_jitter(host, count=50):
         print("No valid latency measurements obtained.")
 
 if __name__ == "__main__":
+
+    HISTORY_DEPTH = 2
+    LATENCY_THRESHOLD = 100
+
     host = "8.8.8.8"  # Replace with the desired host
-    #measure_latency_jitter(host)
-    latency=measure_latency_scapy(host)
-    print(f"Average Latency (scapy)={latency}")
-    latency=measure_latency(host)
-    print(f"Average Latency (pythonping)={latency}")
+    average=0
+    history = [0] * HISTORY_DEPTH
+
+    index=0
+    while True:
+        mean_latency = 0
+        # Other ways of measuring latency - Disabling python ping works well enough
+        # measure_latency_jitter(host)
+        # latency=measure_latency_scapy(host)
+        # print(f"Average Latency (scapy)={latency}")
+        latency=measure_latency(host)
+        history[index % HISTORY_DEPTH] = latency
+        index += 1
+        if (index) >= HISTORY_DEPTH:
+            mean_latency = int(statistics.mean(history))
+            if mean_latency > LATENCY_THRESHOLD:
+                print(f"Mean Latency = \033[31m {mean_latency} \033[0m")
+            else:
+                print(f"Mean Latency = {mean_latency}")
+            index = 0
+        time.sleep(5)
