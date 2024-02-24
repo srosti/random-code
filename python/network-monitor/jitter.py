@@ -2,9 +2,79 @@
 # Shawn Rosti
 
 
+import socket
 import subprocess
 import statistics
 from pythonping import ping
+from tkinter import Tk, Canvas, Scale
+
+# Define the maximum value for the gauge
+MAX_VALUE = 100
+
+
+class UpdateWindow:
+    def __init__(self, master):
+
+        # Create the canvas for drawing the gauge
+        self.canvas = Canvas(root, width=200, height=200)
+        self.canvas.pack()
+
+        # Create a scale widget to control the gauge value
+        scale = Scale(root, from_=0, to=MAX_VALUE, orient="horizontal", command=self.update_gauge)
+        scale.pack()
+
+        # Update the gauge initially with a value of 50
+        self.update_gauge(50)
+
+
+
+    def update_text(self):
+        # Update the label text
+        self.label.config(text="Updated text!")
+
+        # Simulate some background work
+        for i in range(10):
+            # This loop can be replaced with actual background operation
+            pass
+
+        # Update the window after background work (optional)
+        self.master.update()
+
+    def update_gauge(self, value):
+      """
+      Updates the gauge based on the provided value.
+
+      Args:
+        value: The value to display on the gauge (0 to MAX_VALUE).
+      """
+      # Calculate the angle based on the value
+      angle = (value / MAX_VALUE) * 270  # 270 degrees for full arc
+
+      # Clear the previous gauge drawing
+      self.canvas.delete("gauge")
+
+      # Draw the gauge arc
+      center_x, center_y = 100, 100  # Center of the gauge
+      radius = 80  # Radius of the gauge
+      start_angle = 135  # Starting angle (top center)
+      arc_width = 20  # Width of the arc
+
+      self.canvas.create_arc(
+          center_x - radius,
+          center_y - radius,
+          center_x + radius,
+          center_y + radius,
+          start=start_angle,
+          extent=-angle,
+          width=arc_width,
+          style="arc",
+          tags="gauge",
+          fill="#3498db"  # Adjust fill color as desired
+      )
+
+      # Display the current value in the center
+      self.canvas.create_text(center_x, center_y, text=str(value), font=("Arial", 20), tags="gauge")
+
 
 def measure_latency(host, count=5):
     """
@@ -20,7 +90,8 @@ def measure_latency(host, count=5):
 
     MAX_PAYLOAD_SIZE=1400
 
-    responses = ping(host, count=count, size=MAX_PAYLOAD_SIZE, df=True, timeout=1)
+#    responses = ping(host, count=count, size=MAX_PAYLOAD_SIZE, df=True, timeout=1)
+    responses = ping(host)
     if responses:
         return responses.rtt_avg_ms
     else:
@@ -82,7 +153,19 @@ def measure_latency_jitter(host, count=50):
     else:
         print("No valid latency measurements obtained.")
 
+
 if __name__ == "__main__":
+
+    # Create the main window
+    root = Tk()
+    root.title("Gauge Example")
+
+
+    app = UpdateWindow(root)
+
+    # Start the main event loop
+    root.mainloop()
+
 
     HISTORY_DEPTH = 2
     LATENCY_THRESHOLD = 100
