@@ -7,9 +7,32 @@ import subprocess
 import statistics
 from pythonping import ping
 from tkinter import Tk, Canvas, Scale
+import time
 
 # Define the maximum value for the gauge
 MAX_VALUE = 100
+
+def measure_rtt(host, port=80):
+  """
+  Measures the round trip time (RTT) to a specific host and port.
+
+  Args:
+      host: The hostname or IP address of the server.
+      port: The port number of the server (default 80).
+
+  Returns:
+      The RTT in miliseconds as a float, or None if an error occurs.
+  """
+  try:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+      start_time = time.time()
+      sock.connect((host, port))
+      end_time = time.time()
+    return (end_time - start_time) * 1000
+  except Exception as e:
+    print(f"Error measuring RTT: {e}")
+    return None
+
 
 
 class UpdateWindow:
@@ -22,11 +45,7 @@ class UpdateWindow:
         # Create a scale widget to control the gauge value
         scale = Scale(root, from_=0, to=MAX_VALUE, orient="horizontal", command=self.update_gauge)
         scale.pack()
-
-        # Update the gauge initially with a value of 50
         self.update_gauge(50)
-
-
 
     def update_text(self):
         # Update the label text
@@ -74,6 +93,8 @@ class UpdateWindow:
 
       # Display the current value in the center
       self.canvas.create_text(center_x, center_y, text=str(value), font=("Arial", 20), tags="gauge")
+
+      self.canvas.update()
 
 
 def measure_latency(host, count=5):
@@ -157,19 +178,17 @@ def measure_latency_jitter(host, count=50):
 if __name__ == "__main__":
 
     # Create the main window
-    root = Tk()
-    root.title("Gauge Example")
-
-
-    app = UpdateWindow(root)
-
-    # Start the main event loop
-    root.mainloop()
-
+#    root = Tk()
+#    root.title("Gauge Example")
+#
+#    app = UpdateWindow(root)
+#
+#    # Start the main event loop
+#    root.mainloop()
+#
 
     HISTORY_DEPTH = 2
     LATENCY_THRESHOLD = 100
-
     host = "8.8.8.8"  # Replace with the desired host
     average=0
     history = [0] * HISTORY_DEPTH
@@ -191,4 +210,14 @@ if __name__ == "__main__":
             else:
                 print(f"Mean Latency = {mean_latency}")
             index = 0
+
+        # Example usage for round-trip time
+        host = "www.google.com"
+        rtt = measure_rtt(host)
+
+        if rtt:
+          print(f"Round trip time to {host}: {rtt:.2f} miliseconds")
+        else:
+          print(f"Failed to measure RTT to {host}")
+
         time.sleep(5)
