@@ -189,9 +189,11 @@ if __name__ == "__main__":
 
     HISTORY_DEPTH = 2
     LATENCY_THRESHOLD = 100
-    host = "8.8.8.8"  # Replace with the desired host
+#    host = "8.8.8.8"  # Replace with the desired host
+    host = "google.com"  # Replace with the desired host
     average=0
-    history = [0] * HISTORY_DEPTH
+    latency_history = [0] * HISTORY_DEPTH
+    round_trip_time_history = [0] * HISTORY_DEPTH
 
     index=0
     while True:
@@ -201,23 +203,19 @@ if __name__ == "__main__":
         # latency=measure_latency_scapy(host)
         # print(f"Average Latency (scapy)={latency}")
         latency=measure_latency(host)
-        history[index % HISTORY_DEPTH] = latency
+        rtt = measure_rtt(host)
+        round_trip_time_history[index % HISTORY_DEPTH] = rtt
+        latency_history[index % HISTORY_DEPTH] = latency
         index += 1
         if (index) >= HISTORY_DEPTH:
-            mean_latency = int(statistics.mean(history))
-            if mean_latency > LATENCY_THRESHOLD:
+            mean_latency = int(statistics.mean(latency_history))
+            mean_rtt = int(statistics.mean(round_trip_time_history))
+            if mean_latency > LATENCY_THRESHOLD or mean_rtt > LATENCY_THRESHOLD:
                 print(f"Mean Latency = \033[31m {mean_latency} \033[0m")
-            else:
-                print(f"Mean Latency = {mean_latency}")
+                print(f"Mean RTT = \033[31m {mean_rtt} \033[0m")
+#            else:
+#                print(f"Mean Latency = {mean_latency}")
+#                print(f"Mean RTT = {mean_rtt}")
             index = 0
-
-        # Example usage for round-trip time
-        host = "www.google.com"
-        rtt = measure_rtt(host)
-
-        if rtt:
-          print(f"Round trip time to {host}: {rtt:.2f} miliseconds")
-        else:
-          print(f"Failed to measure RTT to {host}")
 
         time.sleep(5)
