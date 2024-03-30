@@ -46,14 +46,14 @@ def monitor_latency(interval, num_samples, prediction_window):
         data = data[-prediction_window:]  # Retain only the last 'prediction_window' samples
         future_latency = predict_latency(data)
 
-        if int(future_latency) > 100:
+        if int(future_latency) > 200:
             print("Predicted latency is getting sketchy...")
         print("Predicted latency in", prediction_window, "samples:", int(future_latency))
 
         time.sleep(interval)
 
 if __name__ == "__main__":
-    interval = 0.25  # Interval in seconds between latency measurements
-    num_samples = 20  # Number of initial samples to collect
+    interval = 0.5  # Interval in seconds between latency measurements
+    num_samples = 30  # Number of initial samples to collect
     prediction_window = 10  # Window size for predicting future latency
     monitor_latency(interval, num_samples, prediction_window)
